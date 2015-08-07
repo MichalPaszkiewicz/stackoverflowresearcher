@@ -1,0 +1,116 @@
+textarea{
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 700px;
+    box-sizing: border-box;
+}
+
+html, body{
+	margin: 0;
+	padding: 0;
+	background: black;
+	color: white;
+}
+
+h1{
+	margin: 10px;
+	padding: 10px;
+	font-family: arial;
+	text-align: center;
+}
+
+.link{
+	margin: 10px;
+	padding: 10px;
+}
+
+.link input{
+	height: 20px;
+	width: 20px;
+	margin: 0;
+	margin-right: 20px;
+	vertical-align: middle;
+}
+
+.link span{
+	color: white;
+	font-family: arial;
+	font-size: larger;
+	cursor : pointer;
+	vertical-align: middle;
+}
+
+.link span:hover{
+    color: rgb(255, 227, 200);
+}
+
+.link .button{
+	background: red;
+	color: white;
+	border-radius: 5px;
+	padding: 0 10px;
+	text-align: center;
+	vertical-align: middle;
+	box-shadow: 0 0 22px 0 black;
+}
+
+.link .button.positive{
+	background: green;
+}
+
+span.read{
+	color: gray;
+}
+
+span.positive{
+	color: rgb(31, 165, 58)
+}
+
+span.bad{
+	color: red;
+}
+
+.link .button.positive:hover{
+	background: rgb(6, 152, 6);
+}
+
+.link .button:hover{
+	background: rgb(245, 96, 42);
+}
+
+.button{
+	display: inline-block;
+	padding: 10px;
+	color: black;
+	background: rgb(245, 159, 0);
+	font-family: arial;
+	font-size: larger;
+	cursor: pointer;
+	margin: 0 10px;
+}
+
+.button:hover{
+	background: rgb(255, 194, 0);
+}
+
+input[type=text]{
+	font-family: arial;
+	font-size: larger;
+	padding: 5px;
+	width: 90%;
+	margin: 20px auto;
+	display: block;
+}
+
+.hidden{
+	display: none;
+}
+
+#result-text{
+  font-family: arial;
+  font-size: larger;
+  padding: 10px;
+  margin: 10px;
+  color: orange;
+}

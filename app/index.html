@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack overflow research</title>
+	<link href="styles.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <h1>Stack overflow research manager</h1>
+	
+	<input id="name" type="text" placeholder="search text">
+	<input id="site" type="text" placeholder="specific stack exchange site">
+	
+	<div class="button" onclick="getData()">get from file</div>
+	<div class="button" onclick="writeResearchFile()">save</div>
+	<div class="button" onclick="callSpecificApi()">call specific api</div>
+	<div class="button" onclick="callApis()">call apis</div>
+	<div class="button" onclick="toggleHidden()" id="toggle-hidden">show bad</div>
+	
+	<div id="result-text"></div>
+	
+	<div id="results"></div>
+	
+	<input id="link" type="text" placeholder="custom link">
+	<input id="title" type="text" placeholder="title">
+	<div class="button" onclick="addCustomSite()">add custom site</div>
+	
+	<script src="script.js"></script>
+
+  </body>
+</html>
