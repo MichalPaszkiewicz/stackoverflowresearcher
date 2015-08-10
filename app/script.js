@@ -11,6 +11,10 @@ var site = function(){
 	return document.getElementById("site").value;
 }
 
+var search = function(){
+	return document.getElementById("search").value;
+}
+
 function addQuestion(link, title, creationDate){
 	for(var i = 0; i < questions.length; i++){
 		if(questions[i].title == title){
@@ -113,21 +117,57 @@ function printQuestions(){
 	var read = 0;
 	var bad = 0;
 	
-	for(var i = 0; i < questions.length; i++){
-		if(questions[i].isBad && showHidden == false){
+	var searchText = search().trim();
+	
+	var searchWords = searchText.split(" ");
+	
+	var filteredQuestions = questions.filter(function(q){
+		if(searchText == ""){
+			return true;
+		}
+		
+		for(var i = 0; i < searchWords.length; i++){
+			if(q.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+				return true;
+			}
+		}
+		
+		return false;
+	});
+	
+	filteredQuestions.sort(function(a, b){
+		
+		var aCount = 0;
+		var bCount = 0;
+		
+		for(var i = 0; i < searchWords.length; i++){
+			if(a.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+				aCount++;
+			}
+			if(b.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+				bCount++;
+			}
+		}
+		
+		return bCount - aCount;
+	});
+	
+	for(var i = 0; i < filteredQuestions.length; i++){
+		if(filteredQuestions[i].isBad && showHidden == false){
 			continue;
 		}
-		var qChecked = questions[i].checked;
+					
+		var qChecked = filteredQuestions[i].checked;
 		var questionDiv = document.createElement("div");
 		if(qChecked){
 			questionDiv.style.background = "darkgreen";
 			read++;
 		}
-		if(questions[i].isBad == true){
+		if(filteredQuestions[i].isBad == true){
 			questionDiv.style.background = "darkred";
 			bad++;
 		}
-		if(questions[i].isGood == true){
+		if(filteredQuestions[i].isGood == true){
 			questionDiv.style.background = "rgb(31, 165, 58)";
 			pos++;
 		}
@@ -138,8 +178,8 @@ function printQuestions(){
 			tick.disabled = true;
 			questionDiv.appendChild(tick);
 			var a = document.createElement("span");
-			a.setAttribute("data-link", questions[i].link);
-			a.innerText = questions[i].title;
+			a.setAttribute("data-link", filteredQuestions[i].link);
+			a.innerText = filteredQuestions[i].title;
 			a.onclick = function(e) {			 
 				var dataLink = e.target.attributes["data-link"];
 				checkQuestion(dataLink.value);
@@ -150,7 +190,7 @@ function printQuestions(){
 			var v = document.createElement("div");
 			v.className = "button positive";
 			v.innerText = "v";
-			v.setAttribute("data-link", questions[i].link);
+			v.setAttribute("data-link", filteredQuestions[i].link);
 			v.onclick = function(e){
 				var dataLink = e.target.attributes["data-link"];
 				toggleGoodQuestion(dataLink.value);
@@ -159,7 +199,7 @@ function printQuestions(){
 			var x = document.createElement("div");
 			x.className = "button";
 			x.innerText = "x";
-			x.setAttribute("data-link", questions[i].link);
+			x.setAttribute("data-link", filteredQuestions[i].link);
 			x.onclick = function(e){
 				var dataLink = e.target.attributes["data-link"];
 				if(confirm("Is this article truly that bad?") == true){
