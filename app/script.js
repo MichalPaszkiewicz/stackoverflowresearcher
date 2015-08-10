@@ -15,13 +15,13 @@ var search = function(){
 	return document.getElementById("search").value;
 }
 
-function addQuestion(link, title, creationDate, site, questionID){
+function addQuestion(link, title, creationDate, site, questionID, body){
 	for(var i = 0; i < questions.length; i++){
 		if(questions[i].title == title){
 			return;
 		}
 	}
-	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site, questionID: questionID});
+	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site, questionID: questionID, body: body});
 }
 
 function addCustomSite(){
@@ -111,6 +111,26 @@ String.prototype.insertText = function( idx, text ) {
     return (this.slice(0,idx) + s + this.slice(idx + 0));
 };
 
+function openQuestion(questionID){
+	
+	for(var  i = 0; i < questions.length; i++){
+		if(questions[i].questionID == questionID){
+			var theQ = questions[i];
+			
+			document.getElementById("detail-question").innerHTML = theQ.body;
+			document.getElementById("detail-answer").innerHTML = theQ.answer;
+			
+			document.getElementById("detail").className = document.getElementById("detail").className.replace(/hidden/g, "");
+		
+		}
+	}
+	
+}
+
+function closeDetail(){
+	document.getElementById("detail").className += " hidden";
+}
+
 function printQuestions(){
 	var resultDiv = document.getElementById("results");
 	
@@ -132,7 +152,7 @@ function printQuestions(){
 	for(var i = 0; i < questions.length; i++){
 		var qp = questions[i];
 		
-		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site, questionID: qp.questionID};
+		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site, questionID: qp.questionID, answer: qp.answer};
 		
 		if(searchText == ""){
 			filteredQuestions.push(q);
@@ -231,7 +251,11 @@ function printQuestions(){
 			questionDiv.appendChild(tick);
 			var a = document.createElement("span");
 			a.setAttribute("data-link", filteredQuestions[i].link);
-			a.innerHTML = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'") + "<span class='site-tag'>" + filteredQuestions[i].site + "</span>";
+			
+			var aHtml = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'");
+			aHtml += "<span class='site-tag'>" + filteredQuestions[i].site + "</span>";
+
+			a.innerHTML = aHtml;
 			a.onclick = function(e) {			 
 				var dataLink = e.target.attributes["data-link"];
 				checkQuestion(dataLink.value);
@@ -259,6 +283,19 @@ function printQuestions(){
 				//}
 			}
 			questionDiv.appendChild(x);
+			if(filteredQuestions[i].answer != undefined){
+				var answer = document.createElement("div");
+				answer.className = "button answer";
+				answer.innerText = "a";
+				answer.setAttribute("data-question", filteredQuestions[i].questionID);
+				answer.onclick = function(e){
+					var dataQuestion = e.target.attributes["data-question"];
+					openQuestion(dataQuestion.value);
+					window.location = "#detail";
+				}
+				
+				questionDiv.appendChild(answer);
+			}
 
 		
 		resultDiv.appendChild(questionDiv);
@@ -276,7 +313,7 @@ function printQuestions(){
 }
 
 function callApi(site){
-	var callString = "https://api.stackexchange.com/2.2/search/advanced?pagesize=90&q=" + person() + "&sort=creation&site=" + site;
+	var callString = "https://api.stackexchange.com/2.2/search/advanced?pagesize=90&q=" + person() + "&sort=creation&site=" + site + "&filter=withBody";
 
 	var request = new XMLHttpRequest();
 	
@@ -289,7 +326,8 @@ function callApi(site){
 			var title = data.items[i].title;
 			var creationDate = data.items[i].creation_date;
 			var questionID = data.items[i].question_id;
-			addQuestion(link, title, creationDate, site, questionID);
+			var body = data.items[i].body;
+			addQuestion(link, title, creationDate, site, questionID, body);
 		}
 		
 		printQuestions();
@@ -314,15 +352,91 @@ function callApis(){
 	}
 }
 
+var crawlType = "answers";
 
-function crawlAnswers(site){
+function crawler(){
 	
-	for(var i = 0; i < 99; i++){
-		
+	if(crawlType == "answers"){
+		crawlAnswers(site());
 	}
+	else{
+		crawlQuestions(site());
+	}
+	
+	//console.log("crawling");
+	
+	setTimeout(crawler, 2000);
 }
 
+function startCrawlingAnswers(){
+	
+	crawlType = "answers";
+	crawler();
+	
+}
+
+function setQuestionAnswer(id, body){
+
+	for(var i = 0; i < questions.length; i++){
+		if( questions[i].questionID == id){
+			questions[i].answer = body;
+			return;
+		}
+	}
+	
+}
+
+function crawlAnswers(site){
+	var questionsWithThisSite = [];
+
+	for(var i = 0; i < questions.length; i++){
+		if(questions[i].site == site && questions[i].answer == undefined && questions[i].isBad == false){
+			questionsWithThisSite.push(questions[i]);
+		}
+	}
+	
+	if(questionsWithThisSite.length == 0){
+		return;
+	}
+	
+	var IDs = [];
+	
+	var maxNum = Math.min(questionsWithThisSite.length, 90);
+	
+	for(var i = 0; i < maxNum; i++){
+		IDs.push(questionsWithThisSite[i].questionID);
+	}
+	
+	var IDstring = IDs.join(";");
+	
+	var callString = "https://api.stackexchange.com/2.2/questions/" + IDstring + "/answers?site=" + site + "&filter=!9YdnSM68i";
+	
+	var request = new XMLHttpRequest();
+	
+	request.onload = function(d, e){
+		var dataText = request.response;
+		var data = JSON.parse(dataText);
+		
+		for(var i = 0; i < data.items.length; i++){
+			var questionID = data.items[i].question_id;
+			var answerID = data.items[i].answer_id;
+			var body = data.items[i].body;
+
+			setQuestionAnswer(questionID, body);
+		}
+		
+		printQuestions();
+	}
+	
+	request.open("GET", callString,true);
+	
+	request.send();
+}
+
+
+
 function crawlQuestions(site){
+	
 	
 }
 
