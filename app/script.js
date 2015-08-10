@@ -15,13 +15,13 @@ var search = function(){
 	return document.getElementById("search").value;
 }
 
-function addQuestion(link, title, creationDate, site){
+function addQuestion(link, title, creationDate, site, questionID){
 	for(var i = 0; i < questions.length; i++){
 		if(questions[i].title == title){
 			return;
 		}
 	}
-	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site});
+	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site, questionID: questionID});
 }
 
 function addCustomSite(){
@@ -132,14 +132,29 @@ function printQuestions(){
 	for(var i = 0; i < questions.length; i++){
 		var qp = questions[i];
 		
-		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site};
+		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site, questionID: qp.questionID};
 		
 		if(searchText == ""){
 			filteredQuestions.push(q);
 		}
 		else{
-			for(var j = 0; j < searchWords.length; j++){				
+			for(var j = 0; j < searchWords.length; j++){		
+				if(searchWords[j].toLowerCase().indexOf("tag:") != -1){
+					var itemTag = searchWords[j].substr(4);
+					
+					if(itemTag == q.site){
+						filteredQuestions.push(q);
+					}
+					else{
+						break;
+					}
+				}
+				
 				if(q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[j].toLowerCase()) != -1){
+					filteredQuestions.push(q);
+					break;
+				}
+				else if(searchWords[j].toLowerCase() == q.site){
 					filteredQuestions.push(q);
 					break;
 				}
@@ -260,7 +275,7 @@ function printQuestions(){
 }
 
 function callApi(site){
-	var callString = "https://api.stackexchange.com/2.2/search/advanced?q=" + person() + "&sort=creation&site=" + site;
+	var callString = "https://api.stackexchange.com/2.2/search/advanced?pagesize=90&q=" + person() + "&sort=creation&site=" + site;
 
 	var request = new XMLHttpRequest();
 	
@@ -272,7 +287,8 @@ function callApi(site){
 			var link = data.items[i].link;
 			var title = data.items[i].title;
 			var creationDate = data.items[i].creation_date;
-			addQuestion(link, title, creationDate, site);
+			var questionID = data.items[i].question_id;
+			addQuestion(link, title, creationDate, site, questionID);
 		}
 		
 		printQuestions();
@@ -294,5 +310,11 @@ function callApis(){
 		for(var i = 0; i < apis.length; i++){
 			callApi(apis[i]);
 		}
+	}
+}
+
+function getAnswers(){
+	for(var i = 0; i < 99; i++){
+		
 	}
 }
