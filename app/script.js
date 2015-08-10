@@ -107,6 +107,10 @@ function toggleHidden(){
 	printQuestions();
 }
 
+String.prototype.insertText = function( idx, text ) {
+    return (this.slice(0,idx) + s + this.slice(idx + 0));
+};
+
 function printQuestions(){
 	var resultDiv = document.getElementById("results");
 	
@@ -121,19 +125,27 @@ function printQuestions(){
 	
 	var searchWords = searchText.split(" ");
 	
-	var filteredQuestions = questions.filter(function(q){
-		if(searchText == ""){
-			return true;
-		}
+	searchWords.sort(function(a, b){ return b.length - a.length });
+	
+	var filteredQuestions = [];
+	
+	for(var i = 0; i < questions.length; i++){
+		var qp = questions[i];
 		
-		for(var i = 0; i < searchWords.length; i++){
-			if(q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
-				return true;
+		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood};
+		
+		if(searchText == ""){
+			filteredQuestions.push(q);
+		}
+		else{
+			for(var j = 0; j < searchWords.length; j++){				
+				if(q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[j].toLowerCase()) != -1){
+					filteredQuestions.push(q);
+					break;
+				}
 			}
 		}
-		
-		return false;
-	});
+	};
 	
 	filteredQuestions.sort(function(a, b){
 		
@@ -151,6 +163,30 @@ function printQuestions(){
 		
 		return bCount - aCount;
 	});
+	
+	for(var i = 0; i < filteredQuestions.length; i++){
+		var q = filteredQuestions[i];
+		
+		for(var j = 0; j < searchWords.length; j++){
+			
+			if(q.title.toLowerCase().indexOf(searchWords[j].toLowerCase()) != -1){
+				
+				// lower case title
+				var lt = q.title.toLowerCase();
+				
+				// index of place
+				var ind = lt.indexOf(searchWords[j].toLowerCase());
+				
+				// length of searchtext
+				var ls = searchWords[j].length;
+				
+				// substring needed
+				var actualText = q.title.substr(ind, ls);
+				
+				q.title = q.title.replace(actualText, "<span style='color: orange'>" + actualText + "</span>")
+			}
+		}
+	}
 	
 	for(var i = 0; i < filteredQuestions.length; i++){
 		if(filteredQuestions[i].isBad && showHidden == false){
@@ -179,7 +215,7 @@ function printQuestions(){
 			questionDiv.appendChild(tick);
 			var a = document.createElement("span");
 			a.setAttribute("data-link", filteredQuestions[i].link);
-			a.innerText = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'");
+			a.innerHTML = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'");
 			a.onclick = function(e) {			 
 				var dataLink = e.target.attributes["data-link"];
 				checkQuestion(dataLink.value);
