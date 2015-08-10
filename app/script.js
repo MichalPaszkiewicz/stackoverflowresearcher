@@ -144,6 +144,7 @@ function printQuestions(){
 					
 					if(itemTag == q.site){
 						filteredQuestions.push(q);
+						break;
 					}
 					else{
 						break;
@@ -184,10 +185,10 @@ function printQuestions(){
 		
 		for(var j = 0; j < searchWords.length; j++){
 			
-			if(q.title.toLowerCase().indexOf(searchWords[j].toLowerCase()) != -1){
+			if(q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[j].toLowerCase()) != -1){
 				
 				// lower case title
-				var lt = q.title.toLowerCase();
+				var lt = q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase();
 				
 				// index of place
 				var ind = lt.indexOf(searchWords[j].toLowerCase());
@@ -196,9 +197,9 @@ function printQuestions(){
 				var ls = searchWords[j].length;
 				
 				// substring needed
-				var actualText = q.title.substr(ind, ls);
+				var actualText = q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").substr(ind, ls);
 				
-				q.title = q.title.replace(actualText, "<span style='color: orange'>" + actualText + "</span>")
+				q.title = q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").replace(actualText, "<span style='color: orange'>" + actualText + "</span>")
 			}
 		}
 	}
@@ -313,8 +314,15 @@ function callApis(){
 	}
 }
 
-function getAnswers(){
+
+function crawlAnswers(site){
+	
 	for(var i = 0; i < 99; i++){
 		
 	}
 }
+
+function crawlQuestions(site){
+	
+}
+
