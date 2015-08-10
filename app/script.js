@@ -127,7 +127,7 @@ function printQuestions(){
 		}
 		
 		for(var i = 0; i < searchWords.length; i++){
-			if(q.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+			if(q.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
 				return true;
 			}
 		}
@@ -141,10 +141,10 @@ function printQuestions(){
 		var bCount = 0;
 		
 		for(var i = 0; i < searchWords.length; i++){
-			if(a.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+			if(a.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
 				aCount++;
 			}
-			if(b.title.toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
+			if(b.title.replace(/&quot;/g,"'").replace(/&#39;/g, "'").toLowerCase().indexOf(searchWords[i].toLowerCase()) != -1){
 				bCount++;
 			}
 		}
@@ -179,7 +179,7 @@ function printQuestions(){
 			questionDiv.appendChild(tick);
 			var a = document.createElement("span");
 			a.setAttribute("data-link", filteredQuestions[i].link);
-			a.innerText = filteredQuestions[i].title;
+			a.innerText = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'");
 			a.onclick = function(e) {			 
 				var dataLink = e.target.attributes["data-link"];
 				checkQuestion(dataLink.value);

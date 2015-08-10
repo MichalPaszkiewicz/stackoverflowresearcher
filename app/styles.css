@@ -87,7 +87,7 @@ span.bad{
 	font-family: arial;
 	font-size: larger;
 	cursor: pointer;
-	margin: 0 10px;
+	margin: 5px 10px;
 }
 
 .button:hover{
