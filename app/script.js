@@ -238,9 +238,9 @@ function printQuestions(){
 			x.setAttribute("data-link", filteredQuestions[i].link);
 			x.onclick = function(e){
 				var dataLink = e.target.attributes["data-link"];
-				if(confirm("Is this article truly that bad?") == true){
+				//if(confirm("Is this article truly that bad?") == true){
 					setBadQuestion(dataLink.value);
-				}
+				//}
 			}
 			questionDiv.appendChild(x);
 
