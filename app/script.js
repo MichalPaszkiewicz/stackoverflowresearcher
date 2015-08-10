@@ -15,13 +15,13 @@ var search = function(){
 	return document.getElementById("search").value;
 }
 
-function addQuestion(link, title, creationDate){
+function addQuestion(link, title, creationDate, site){
 	for(var i = 0; i < questions.length; i++){
 		if(questions[i].title == title){
 			return;
 		}
 	}
-	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false});
+	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site});
 }
 
 function addCustomSite(){
@@ -132,7 +132,7 @@ function printQuestions(){
 	for(var i = 0; i < questions.length; i++){
 		var qp = questions[i];
 		
-		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood};
+		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site};
 		
 		if(searchText == ""){
 			filteredQuestions.push(q);
@@ -215,7 +215,7 @@ function printQuestions(){
 			questionDiv.appendChild(tick);
 			var a = document.createElement("span");
 			a.setAttribute("data-link", filteredQuestions[i].link);
-			a.innerHTML = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'");
+			a.innerHTML = filteredQuestions[i].title.replace(/&quot;/g,"'").replace(/&#39;/g, "'") + "<span class='site-tag'>" + filteredQuestions[i].site + "</span>";
 			a.onclick = function(e) {			 
 				var dataLink = e.target.attributes["data-link"];
 				checkQuestion(dataLink.value);
@@ -272,7 +272,7 @@ function callApi(site){
 			var link = data.items[i].link;
 			var title = data.items[i].title;
 			var creationDate = data.items[i].creation_date;
-			addQuestion(link, title, creationDate);
+			addQuestion(link, title, creationDate, site);
 		}
 		
 		printQuestions();

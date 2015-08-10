@@ -107,6 +107,13 @@ input[type=text]{
 	display: none;
 }
 
+.link span.site-tag{
+	color: lightblue;
+	vertical-align: middle;
+	font-size: 14px;
+	margin: 10px;
+}
+
 #result-text{
   font-family: arial;
   font-size: larger;
