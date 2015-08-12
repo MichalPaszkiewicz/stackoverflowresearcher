@@ -15,13 +15,13 @@ var search = function(){
 	return document.getElementById("search").value;
 }
 
-function addQuestion(link, title, creationDate, site, questionID, body){
+function addQuestion(link, title, creationDate, site, questionID, body, isAnswered){
 	for(var i = 0; i < questions.length; i++){
 		if(questions[i].title == title){
 			return;
 		}
 	}
-	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site, questionID: questionID, body: body});
+	questions.push({link: link, title: title, creationDate: creationDate, checked: false, isBad: false, isGood: false, site: site, questionID: questionID, body: body, isAnswered: isAnswered});
 }
 
 function addCustomSite(){
@@ -113,6 +113,8 @@ String.prototype.insertText = function( idx, text ) {
 
 function openQuestion(questionID){
 	
+	document.getElementById("results").className += " hidden";
+	
 	for(var  i = 0; i < questions.length; i++){
 		if(questions[i].questionID == questionID){
 			var theQ = questions[i];
@@ -128,6 +130,7 @@ function openQuestion(questionID){
 }
 
 function closeDetail(){
+	document.getElementById("results").className = document.getElementById("results").className.replace(/hidden/g, "");
 	document.getElementById("detail").className += " hidden";
 }
 
@@ -152,7 +155,7 @@ function printQuestions(){
 	for(var i = 0; i < questions.length; i++){
 		var qp = questions[i];
 		
-		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site, questionID: qp.questionID, answer: qp.answer};
+		var q = {link: qp.link, title: qp.title, creationDate: qp.creationDate, checked: qp.checked, isBad: qp.isBad, isGood: qp.isGood, site: qp.site, questionID: qp.questionID, answer: qp.answer, isAnswered: qp.isAnswered};
 		
 		if(searchText == ""){
 			filteredQuestions.push(q);
@@ -327,7 +330,8 @@ function callApi(site){
 			var creationDate = data.items[i].creation_date;
 			var questionID = data.items[i].question_id;
 			var body = data.items[i].body;
-			addQuestion(link, title, creationDate, site, questionID, body);
+			var isAnswered = data.items[i].is_answered;
+			addQuestion(link, title, creationDate, site, questionID, body, isAnswered);
 		}
 		
 		printQuestions();
@@ -338,8 +342,52 @@ function callApi(site){
 	request.send();
 }
 
+function crawlApi(site, page){
+	
+	var pageSize = 90;
+	
+	if(page == null){
+		page = 1;
+	}
+	var callString = "https://api.stackexchange.com/2.2/search/advanced?pagesize=" + pageSize + "&page=" + page + "&q=" + person() + "&sort=creation&site=" + site + "&filter=withBody";
+
+	var request = new XMLHttpRequest();
+	
+	request.onload = function(d, e){
+		var dataText = request.response;
+		var data = JSON.parse(dataText);
+		
+		for(var i = 0; i < data.items.length; i++){
+			var link = data.items[i].link;
+			var title = data.items[i].title;
+			var creationDate = data.items[i].creation_date;
+			var questionID = data.items[i].question_id;
+			var body = data.items[i].body;
+			var isAnswered = data.items[i].is_answered;
+			addQuestion(link, title, creationDate, site, questionID, body, isAnswered);
+		}
+		
+		printQuestions();
+		
+		if(data.items.length >= pageSize){
+			setTimeout(function(){
+				crawlApi(site, page + 1);
+			}, 1000);
+		}
+	}
+	
+	request.open("GET", callString,true);
+	
+	request.send();
+}
+
+
 function callSpecificApi(){
 	callApi(site());
+}
+
+function crawlSpecificApi(){
+	crawlApi(site());
 }
 
 function callApis(){
@@ -390,7 +438,7 @@ function crawlAnswers(site){
 	var questionsWithThisSite = [];
 
 	for(var i = 0; i < questions.length; i++){
-		if(questions[i].site == site && questions[i].answer == undefined && questions[i].isBad == false){
+		if(questions[i].site == site && questions[i].answer == undefined && questions[i].isBad == false && questions[i].isAnswered == true){
 			questionsWithThisSite.push(questions[i]);
 		}
 	}
@@ -432,11 +480,3 @@ function crawlAnswers(site){
 	
 	request.send();
 }
-
-
-
-function crawlQuestions(site){
-	
-	
-}
-

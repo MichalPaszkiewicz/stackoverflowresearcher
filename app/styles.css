@@ -149,3 +149,7 @@ input[type=text]{
 #detail h2{
 	 color: lightblue;
 }
+
+#detail a{
+	color: orange;
+}
