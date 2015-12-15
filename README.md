@@ -12,4 +12,6 @@ http://electron.atom.io/
 
 then go to this repository and run:
 
-electron app
+`electron app`
+
+you can then control which stack exchange sites to search, what text to search for and store details as to the usefulness of each question.
